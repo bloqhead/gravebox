@@ -1,0 +1,17 @@
+/* Crisp pixel rendering utilities — keep sprites and pixel fonts unblurred */
+
+.gb-pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.gb-inset {
+  border: var(--pixel) solid var(--gb-iron-dim);
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.5);
+}
+
+.gb-outset {
+  border: var(--pixel) solid var(--gb-iron);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+}

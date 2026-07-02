@@ -1,0 +1,145 @@
+/* ==========================================================================
+   GRAVEBOX — design tokens
+   Gothic-electronic, pixel-art, dark. A groovebox for the crypt.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Alagard';
+  src: url('/fonts/alagard.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Silkscreen';
+  src: url('/fonts/silkscreen-regular.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Silkscreen';
+  src: url('/fonts/silkscreen-bold.woff2') format('woff2');
+  font-weight: bold;
+  font-display: swap;
+}
+
+:root {
+  /* ---- palette ---- */
+  --gb-void: #120e18;       /* app background */
+  --gb-crypt: #1e1626;      /* panels / surfaces */
+  --gb-crypt-raised: #291d38; /* raised panel / hover */
+  --gb-bone: #e8e0d4;       /* primary text */
+  --gb-bone-dim: #948c9c;   /* secondary text */
+  --gb-blood: #b0223f;      /* primary accent: record, danger, active-hot */
+  --gb-blood-glow: #e8355a;
+  --gb-phosphor: #4fd1c5;   /* secondary accent: playhead, active-cool, links */
+  --gb-phosphor-glow: #7ef0e4;
+  --gb-iron: #4a4458;       /* borders, grid lines, inactive */
+  --gb-iron-dim: #322b3d;   /* deep borders / step-off */
+
+  /* ---- type ---- */
+  --font-display: 'Alagard', serif;
+  --font-ui: 'Silkscreen', monospace;
+
+  /* ---- geometry ---- */
+  --pixel: 2px;             /* base pixel unit for borders/shadows */
+  --radius: 0px;            /* no rounding — pixel grid stays crisp */
+
+  /* ---- motion ---- */
+  --ease-step: steps(4, end);
+  --dur-flicker: 1.6s;
+  --dur-pulse: 0.9s;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--gb-void);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, transparent 1px, transparent 3px),
+    radial-gradient(ellipse at 50% -10%, rgba(176,34,63,0.10), transparent 60%);
+  color: var(--gb-bone);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;
+}
+
+h1, h2, h3, .gb-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+  color: var(--gb-bone);
+  text-shadow: 0 0 8px rgba(176,34,63,0.35);
+}
+
+/* ---- pixel border utility: hard 4-corner notch instead of border-radius ---- */
+.gb-panel {
+  background: var(--gb-crypt);
+  border: var(--pixel) solid var(--gb-iron);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.4),
+    0 4px 0 0 rgba(0,0,0,0.35);
+  clip-path: polygon(
+    0 6px, 6px 6px, 6px 0,
+    calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%,
+    6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px)
+  );
+}
+
+/* ---- signature: ember flicker for active steps ---- */
+@keyframes gb-ember-flicker {
+  0%, 100% { filter: brightness(1) saturate(1); }
+  25%      { filter: brightness(1.15) saturate(1.1); }
+  50%      { filter: brightness(0.92) saturate(0.95); }
+  75%      { filter: brightness(1.08) saturate(1.05); }
+}
+
+.gb-ember {
+  animation: gb-ember-flicker var(--dur-flicker) infinite steps(8, end);
+}
+
+/* ---- signature: candle-flame playhead ---- */
+@keyframes gb-flame {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50%      { transform: translateY(-1px) scaleY(1.08); }
+}
+
+.gb-playhead {
+  animation: gb-flame 0.5s infinite steps(4, end);
+  filter: drop-shadow(0 0 4px var(--gb-phosphor-glow));
+}
+
+/* ---- pulse for record/transport states ---- */
+@keyframes gb-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(176,34,63,0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(176,34,63,0); }
+}
+
+.gb-pulse {
+  animation: gb-pulse var(--dur-pulse) infinite;
+}
+
+::selection {
+  background: var(--gb-blood);
+  color: var(--gb-bone);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--gb-void);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gb-iron);
+  border: 2px solid var(--gb-void);
+}

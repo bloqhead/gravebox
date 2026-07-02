@@ -1,0 +1,29 @@
+/* Shared motion for controls, mixer, sequencer — deliberately chunky/stepped
+   to read as pixel-animation rather than smooth easing. */
+
+@keyframes gb-knob-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px var(--gb-phosphor)); }
+  50%      { filter: drop-shadow(0 0 6px var(--gb-phosphor-glow)); }
+}
+
+@keyframes gb-meter-rise {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@keyframes gb-slide-in {
+  from { transform: translateY(6px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.gb-enter {
+  animation: gb-slide-in 0.15s steps(3, end);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

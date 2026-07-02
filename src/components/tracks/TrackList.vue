@@ -23,6 +23,11 @@
           :class="{ 'tracklist__solo--on': track.solo }"
           @click.stop="tracks.toggleSolo(track.id)"
         >S</button>
+        <button
+          class="tracklist__delete"
+          title="Delete voice"
+          @click.stop="confirmDelete(track)"
+        >×</button>
       </div>
     </div>
 
@@ -36,6 +41,12 @@
 <script setup>
 import { useTracksStore } from '../../stores/tracks.js'
 const tracks = useTracksStore()
+
+function confirmDelete(track) {
+  if (confirm(`Delete "${track.name}"? This can't be undone.`)) {
+    tracks.removeTrack(track.id)
+  }
+}
 </script>
 
 <style scoped>
@@ -71,6 +82,9 @@ const tracks = useTracksStore()
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  margin-right: 6px;
 }
 
 .tracklist__buttons {
@@ -78,7 +92,7 @@ const tracks = useTracksStore()
   gap: 4px;
 }
 
-.tracklist__mute, .tracklist__solo {
+.tracklist__mute, .tracklist__solo, .tracklist__delete {
   width: 20px;
   height: 20px;
   font-size: 9px;
@@ -86,6 +100,18 @@ const tracks = useTracksStore()
   border: 1px solid var(--gb-iron);
   color: var(--gb-bone-dim);
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.tracklist__delete {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.tracklist__delete:hover {
+  background: var(--gb-blood);
+  border-color: var(--gb-blood-glow);
+  color: var(--gb-bone);
 }
 
 .tracklist__mute--on {

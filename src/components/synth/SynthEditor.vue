@@ -22,6 +22,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useTracksStore } from '../../stores/tracks.js'
+import { getEngine } from '../../audio/registry.js'
 import OscillatorPanel from './OscillatorPanel.vue'
 import ADSREnvelope from './ADSREnvelope.vue'
 import FilterPanel from './FilterPanel.vue'
@@ -32,7 +33,12 @@ const track = computed(() => tracks.selectedTrack)
 
 function updateParam(key, value) {
   if (!track.value) return
+  // Update the store (for persistence/display) AND push straight to the
+  // live TrackEngine (for guaranteed immediate audio feedback) — don't
+  // rely solely on a reactive watcher round-trip for something the user
+  // expects to hear instantly.
   tracks.updateSynthParam(track.value.id, key, value)
+  getEngine(track.value.id)?.updateSynthParam(key, value)
 }
 </script>
 

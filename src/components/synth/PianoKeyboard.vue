@@ -38,6 +38,7 @@ import { getEngine } from '../../audio/registry.js'
 
 const OCTAVE_RANGE = [3, 4, 5] // three octaves shown on screen
 const NOTE_ORDER = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+const WHITE_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 
 const tracks = useTracksStore()
 const transport = useTransportStore()

@@ -86,6 +86,20 @@ export class TrackEngine {
     }
   }
 
+  /** Note-on with no fixed duration — used for live keyboard/MIDI playing. */
+  triggerAttack(note, time, velocity = 1) {
+    this.instrument.triggerAttack(note ?? 'C4', time, velocity)
+  }
+
+  /** Note-off counterpart to triggerAttack. MonoSynth ignores `note`. */
+  triggerRelease(note, time) {
+    if (this.type === 'sampler') {
+      this.instrument.triggerRelease(note ?? 'C4', time)
+    } else {
+      this.instrument.triggerRelease(time)
+    }
+  }
+
   setVolume(db) {
     this.channel.volume.rampTo(db, 0.05)
   }
@@ -107,13 +121,26 @@ export class TrackEngine {
       sustain: 'envelope.sustain',
       release: 'envelope.release',
       oscType: 'oscillator.type',
+      filterType: 'filter.type',
       filterQ: 'filter.Q',
       filterFreq: 'filterEnvelope.baseFrequency',
+      filterAttack: 'filterEnvelope.attack',
+      filterDecay: 'filterEnvelope.decay',
+      filterSustain: 'filterEnvelope.sustain',
+      filterRelease: 'filterEnvelope.release',
+      filterOctaves: 'filterEnvelope.octaves',
     }
     const path = map[key]
     if (!path) return
     const [group, prop] = path.split('.')
-    this.instrument[group][prop] = value
+    // Some of these are AudioParams (settable via .value), others are
+    // plain properties depending on Tone's internal wiring — try both.
+    const target = this.instrument[group]
+    if (target[prop] && typeof target[prop] === 'object' && 'value' in target[prop]) {
+      target[prop].value = value
+    } else {
+      target[prop] = value
+    }
   }
 
   dispose() {

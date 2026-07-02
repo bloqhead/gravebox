@@ -7,13 +7,13 @@ import { watch } from 'vue'
 import * as Tone from 'tone'
 import { TrackEngine } from './TrackEngine.js'
 import * as engine from './engine.js'
+import * as registry from './registry.js'
 
 export class SequencerBridge {
   constructor(tracksStore, projectStore, transportStore) {
     this.tracksStore = tracksStore
     this.projectStore = projectStore
     this.transportStore = transportStore
-    this.engines = new Map() // trackId -> TrackEngine
     this.scheduleId = null
 
     this._syncEngines()
@@ -42,25 +42,39 @@ export class SequencerBridge {
       () => transportStore.swing,
       (swing) => engine.setSwing(swing)
     )
+
+    // Push live synth param edits (from knobs) straight to the running
+    // instrument, independent of the sequencer reschedule cycle.
+    watch(
+      () => tracksStore.tracks.map((t) => (t.synth ? { ...t.synth } : null)),
+      () => {
+        for (const config of tracksStore.tracks) {
+          if (config.type !== 'synth') continue
+          const trackEngine = registry.getEngine(config.id)
+          if (!trackEngine) continue
+          for (const [key, value] of Object.entries(config.synth)) {
+            trackEngine.updateSynthParam(key, value)
+          }
+        }
+      },
+      { deep: true }
+    )
   }
 
   _syncEngines() {
     const currentIds = new Set(this.tracksStore.tracks.map((t) => t.id))
 
     // Dispose engines for removed tracks
-    for (const [id, trackEngine] of this.engines) {
-      if (!currentIds.has(id)) {
-        trackEngine.dispose()
-        this.engines.delete(id)
-      }
+    for (const id of registry.allIds()) {
+      if (!currentIds.has(id)) registry.deleteEngine(id)
     }
 
     // Create engines for new tracks, update params on existing ones
     for (const config of this.tracksStore.tracks) {
-      if (!this.engines.has(config.id)) {
-        this.engines.set(config.id, new TrackEngine(config))
+      if (!registry.hasEngine(config.id)) {
+        registry.setEngine(config.id, new TrackEngine(config))
       }
-      const trackEngine = this.engines.get(config.id)
+      const trackEngine = registry.getEngine(config.id)
       trackEngine.setVolume(config.volume)
       trackEngine.setPan(config.pan)
       trackEngine.setMute(this._isEffectivelyMuted(config))
@@ -89,7 +103,7 @@ export class SequencerBridge {
       for (const [trackId, trackData] of Object.entries(pattern.tracks)) {
         const step = trackData.steps[stepIndex]
         if (!step?.active) continue
-        const trackEngine = this.engines.get(trackId)
+        const trackEngine = registry.getEngine(trackId)
         trackEngine?.trigger(step.note, step.duration, time, step.velocity)
       }
 
@@ -103,7 +117,6 @@ export class SequencerBridge {
 
   dispose() {
     if (this.scheduleId !== null) engine.clearSchedule(this.scheduleId)
-    for (const trackEngine of this.engines.values()) trackEngine.dispose()
-    this.engines.clear()
+    for (const id of registry.allIds()) registry.deleteEngine(id)
   }
 }

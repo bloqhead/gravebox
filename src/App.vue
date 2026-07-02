@@ -9,7 +9,10 @@
 
     <main class="app__body">
       <TrackList class="app__tracklist" />
-      <StepGrid class="app__grid" />
+      <div class="app__main-col">
+        <StepGrid class="app__grid" />
+        <SynthEditor class="app__synth" />
+      </div>
     </main>
 
     <div v-if="!transport.audioReady" class="app__start-overlay" @click="startAudio">
@@ -30,6 +33,7 @@ import { SequencerBridge } from './audio/SequencerBridge.js'
 import TransportBar from './components/controls/TransportBar.vue'
 import TrackList from './components/tracks/TrackList.vue'
 import StepGrid from './components/sequencer/StepGrid.vue'
+import SynthEditor from './components/synth/SynthEditor.vue'
 
 const transport = useTransportStore()
 const tracks = useTracksStore()
@@ -87,9 +91,17 @@ onMounted(() => {
   min-height: 0;
 }
 
-.app__grid {
+.app__main-col {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
   overflow: auto;
+}
+
+.app__grid {
+  flex-shrink: 0;
 }
 
 .app__start-overlay {

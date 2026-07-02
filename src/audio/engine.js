@@ -7,27 +7,21 @@
 import * as Tone from 'tone'
 
 let started = false
+let graphBuilt = false
 let masterCompressor = null
 let masterLimiter = null
 let masterAnalyser = null
 
 /**
- * Must be called from a user gesture (click/touch) — browsers require this
- * to unlock the AudioContext. Mobile browsers are stricter than desktop:
- * Tone.start() alone sometimes leaves the context in a 'suspended' state
- * on iOS/Android WebViews, so we explicitly check and force-resume the
- * raw context too, and re-resume whenever the tab/app regains focus
- * (mobile OSes commonly suspend the context when backgrounded).
+ * Builds the master bus graph (compressor -> limiter -> destination,
+ * plus an analyser tap). Building/connecting Tone nodes does NOT require
+ * a running AudioContext — only actual sound processing does — so this
+ * is safe to call at app startup, well before any user gesture. This is
+ * called lazily by getMasterBus() so TrackEngine always has a real node
+ * to connect to, instead of getting null and throwing.
  */
-export async function initAudio() {
-  if (started) {
-    await resumeIfSuspended()
-    return
-  }
-
-  await Tone.start()
-  await resumeIfSuspended()
-
+function buildMasterBus() {
+  if (graphBuilt) return
   masterCompressor = new Tone.Compressor({
     threshold: -18,
     ratio: 3,
@@ -39,6 +33,27 @@ export async function initAudio() {
 
   masterCompressor.chain(masterLimiter, Tone.Destination)
   masterLimiter.connect(masterAnalyser)
+  graphBuilt = true
+}
+
+/**
+ * Must be called from a user gesture (click/touch) — browsers require this
+ * to unlock the AudioContext. Mobile browsers are stricter than desktop:
+ * Tone.start() alone sometimes leaves the context in a 'suspended' state
+ * on iOS/Android WebViews, so we explicitly check and force-resume the
+ * raw context too, and re-resume whenever the tab/app regains focus
+ * (mobile OSes commonly suspend the context when backgrounded).
+ */
+export async function initAudio() {
+  buildMasterBus()
+
+  if (started) {
+    await resumeIfSuspended()
+    return
+  }
+
+  await Tone.start()
+  await resumeIfSuspended()
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') resumeIfSuspended()
@@ -63,10 +78,12 @@ export function getContextState() {
 }
 
 export function getMasterBus() {
+  buildMasterBus()
   return masterCompressor
 }
 
 export function getAnalyser() {
+  buildMasterBus()
   return masterAnalyser
 }
 

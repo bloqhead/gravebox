@@ -168,6 +168,9 @@ function midiNoteToName(midiNote) {
   position: relative;
   height: 100px;
   user-select: none;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
 }
 
 .piano__key {
@@ -175,6 +178,7 @@ function midiNoteToName(midiNote) {
   top: 0;
   cursor: pointer;
   transition: background 0.05s;
+  touch-action: none;
 }
 
 .piano__key--white {

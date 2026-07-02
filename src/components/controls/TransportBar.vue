@@ -51,14 +51,29 @@
     <div class="transport__step-readout">
       Step {{ String(transport.currentStep + 1).padStart(2, '0') }}
     </div>
+
+    <div class="transport__audio-status" :class="`transport__audio-status--${contextState}`">
+      audio: {{ contextState }}
+    </div>
   </div>
 </template>
 
 <script setup>
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useTransportStore } from '../../stores/transport.js'
+import { getContextState } from '../../audio/engine.js'
 import PixelSlider from './PixelSlider.vue'
 
 const transport = useTransportStore()
+const contextState = ref(getContextState())
+
+let poll = null
+onMounted(() => {
+  poll = setInterval(() => {
+    contextState.value = getContextState()
+  }, 500)
+})
+onUnmounted(() => clearInterval(poll))
 </script>
 
 <style scoped>
@@ -76,6 +91,8 @@ const transport = useTransportStore()
   border: var(--pixel) solid var(--gb-iron);
   color: var(--gb-bone);
   font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
   padding: 8px 12px;
 }
@@ -119,7 +136,8 @@ const transport = useTransportStore()
   background: var(--gb-iron-dim);
   border: var(--pixel) solid var(--gb-iron);
   color: var(--gb-phosphor);
-  font-family: var(--font-ui);
+  font-family: var(--font-mono);
+  font-size: 14px;
   padding: 6px;
   text-align: center;
 }
@@ -127,6 +145,27 @@ const transport = useTransportStore()
 .transport__step-readout {
   margin-left: auto;
   color: var(--gb-bone-dim);
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.transport__audio-status {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  border: 1px solid var(--gb-iron);
+}
+
+.transport__audio-status--running {
+  color: var(--gb-phosphor);
+  border-color: var(--gb-phosphor);
+}
+
+.transport__audio-status--suspended,
+.transport__audio-status--not-started {
+  color: var(--gb-blood-glow);
+  border-color: var(--gb-blood);
 }
 </style>

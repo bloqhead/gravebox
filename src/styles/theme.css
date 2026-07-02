@@ -1,44 +1,31 @@
 /* ==========================================================================
    GRAVEBOX — design tokens
-   Gothic-electronic, pixel-art, dark. A groovebox for the crypt.
+   Industrial-gothic, pixel-electronic, dark. NIN/KMFDM energy: futuristic,
+   grungy, high-contrast. A groovebox for the crypt.
    ========================================================================== */
 
-@font-face {
-  font-family: 'Alagard';
-  src: url('/fonts/alagard.woff2') format('woff2');
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Silkscreen';
-  src: url('/fonts/silkscreen-regular.woff2') format('woff2');
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Silkscreen';
-  src: url('/fonts/silkscreen-bold.woff2') format('woff2');
-  font-weight: bold;
-  font-display: swap;
-}
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Glitch&family=Oswald:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=Share+Tech+Mono&display=swap');
 
 :root {
   /* ---- palette ---- */
-  --gb-void: #120e18;       /* app background */
-  --gb-crypt: #1e1626;      /* panels / surfaces */
-  --gb-crypt-raised: #291d38; /* raised panel / hover */
+  --gb-void: #0d0a11;       /* app background — darker, harder black */
+  --gb-crypt: #1a1420;      /* panels / surfaces */
+  --gb-crypt-raised: #251c2d; /* raised panel / hover */
   --gb-bone: #e8e0d4;       /* primary text */
-  --gb-bone-dim: #948c9c;   /* secondary text */
-  --gb-blood: #b0223f;      /* primary accent: record, danger, active-hot */
-  --gb-blood-glow: #e8355a;
+  --gb-bone-dim: #8a8092;   /* secondary text */
+  --gb-blood: #c41e3a;      /* primary accent: record, danger, active-hot */
+  --gb-blood-glow: #ff3355;
   --gb-phosphor: #4fd1c5;   /* secondary accent: playhead, active-cool, links */
   --gb-phosphor-glow: #7ef0e4;
-  --gb-iron: #4a4458;       /* borders, grid lines, inactive */
-  --gb-iron-dim: #322b3d;   /* deep borders / step-off */
+  --gb-iron: #453a4f;       /* borders, grid lines, inactive */
+  --gb-iron-dim: #241c2a;   /* deep borders / step-off */
+  --gb-hazard: #d4a017;     /* rare tertiary — warning/rec accents only */
 
   /* ---- type ---- */
-  --font-display: 'Alagard', serif;
-  --font-ui: 'Silkscreen', monospace;
+  --font-glitch: 'Rubik Glitch', cursive;    /* wordmark only — used with restraint */
+  --font-display: 'Oswald', sans-serif;       /* condensed industrial headers */
+  --font-ui: 'Silkscreen', monospace;         /* pixel labels, step grid, knobs */
+  --font-mono: 'Share Tech Mono', monospace;  /* numeric readouts, BPM, transport */
 
   /* ---- geometry ---- */
   --pixel: 2px;             /* base pixel unit for borders/shadows */
@@ -62,21 +49,39 @@ html, body, #app {
 body {
   background: var(--gb-void);
   background-image:
-    repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, transparent 1px, transparent 3px),
-    radial-gradient(ellipse at 50% -10%, rgba(176,34,63,0.10), transparent 60%);
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.28) 0px, transparent 1px, transparent 3px),
+    radial-gradient(ellipse at 50% -10%, rgba(196,30,58,0.14), transparent 55%),
+    radial-gradient(ellipse at 100% 110%, rgba(79,209,197,0.06), transparent 50%);
   color: var(--gb-bone);
   font-family: var(--font-ui);
   font-size: 13px;
   line-height: 1.5;
   image-rendering: pixelated;
   -webkit-font-smoothing: none;
+  position: relative;
 }
 
-h1, h2, h3, .gb-display {
+/* film-grain / static texture overlay — sits above everything, never
+   intercepts input */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+h1, h2, h3, h4, .gb-display {
   font-family: var(--font-display);
-  letter-spacing: 0.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
   color: var(--gb-bone);
-  text-shadow: 0 0 8px rgba(176,34,63,0.35);
+  text-shadow: 1px 0 0 var(--gb-blood-glow), -1px 0 0 var(--gb-phosphor-glow);
+  margin: 0;
 }
 
 /* ---- pixel border utility: hard 4-corner notch instead of border-radius ---- */
@@ -84,13 +89,14 @@ h1, h2, h3, .gb-display {
   background: var(--gb-crypt);
   border: var(--pixel) solid var(--gb-iron);
   box-shadow:
-    inset 0 0 0 1px rgba(0,0,0,0.4),
-    0 4px 0 0 rgba(0,0,0,0.35);
+    inset 0 0 0 1px rgba(0,0,0,0.5),
+    0 5px 0 0 rgba(0,0,0,0.5),
+    0 0 24px rgba(0,0,0,0.35);
   clip-path: polygon(
-    0 6px, 6px 6px, 6px 0,
-    calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
-    100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%,
-    6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px)
+    0 8px, 8px 8px, 8px 0,
+    calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px,
+    100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%,
+    8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px)
   );
 }
 
@@ -130,6 +136,60 @@ h1, h2, h3, .gb-display {
 ::selection {
   background: var(--gb-blood);
   color: var(--gb-bone);
+}
+
+/* ---- signature: glitching wordmark with chromatic aberration ---- */
+.gb-wordmark {
+  font-family: var(--font-glitch);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  color: var(--gb-bone);
+  text-shadow: none;
+}
+
+.gb-wordmark::before,
+.gb-wordmark::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  opacity: 0.85;
+}
+
+.gb-wordmark::before {
+  color: var(--gb-blood-glow);
+  animation: gb-glitch-shift 3.2s infinite steps(2, end);
+  clip-path: inset(0 0 55% 0);
+}
+
+.gb-wordmark::after {
+  color: var(--gb-phosphor-glow);
+  animation: gb-glitch-shift 3.2s infinite steps(2, end) reverse;
+  clip-path: inset(55% 0 0 0);
+}
+
+@keyframes gb-glitch-shift {
+  0%, 88%, 100% { transform: translate(0, 0); }
+  90% { transform: translate(-2px, 1px); }
+  92% { transform: translate(2px, -1px); }
+  94% { transform: translate(-1px, 0); }
+  96% { transform: translate(1px, 1px); }
+}
+
+/* ---- industrial hazard-stripe accent bar (used sparingly: rec/danger
+   states, active pattern header) — blood/void diagonal stripes rather
+   than literal yellow/black, to stay in-palette ---- */
+.gb-hazard-bar {
+  height: 4px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--gb-blood) 0px, var(--gb-blood) 6px,
+    var(--gb-void) 6px, var(--gb-void) 12px
+  );
 }
 
 ::-webkit-scrollbar {

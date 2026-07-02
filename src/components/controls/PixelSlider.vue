@@ -146,7 +146,8 @@ function startDrag(e) {
 }
 
 .slider__value {
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   color: var(--gb-phosphor);
   min-width: 28px;
   text-align: center;

@@ -32,6 +32,8 @@ defineEmits(['toggle'])
   cursor: pointer;
   padding: 0;
   transition: background 0.08s, border-color 0.08s;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
 }
 
 .step:hover {

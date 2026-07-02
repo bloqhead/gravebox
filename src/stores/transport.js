@@ -15,7 +15,6 @@ export const useTransportStore = defineStore('transport', {
 
   actions: {
     async ensureAudio() {
-      if (this.audioReady) return
       await engine.initAudio()
       this.audioReady = true
     },

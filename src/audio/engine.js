@@ -12,12 +12,21 @@ let masterLimiter = null
 let masterAnalyser = null
 
 /**
- * Must be called from a user gesture (click) — browsers require this
- * to unlock the AudioContext.
+ * Must be called from a user gesture (click/touch) — browsers require this
+ * to unlock the AudioContext. Mobile browsers are stricter than desktop:
+ * Tone.start() alone sometimes leaves the context in a 'suspended' state
+ * on iOS/Android WebViews, so we explicitly check and force-resume the
+ * raw context too, and re-resume whenever the tab/app regains focus
+ * (mobile OSes commonly suspend the context when backgrounded).
  */
 export async function initAudio() {
-  if (started) return
+  if (started) {
+    await resumeIfSuspended()
+    return
+  }
+
   await Tone.start()
+  await resumeIfSuspended()
 
   masterCompressor = new Tone.Compressor({
     threshold: -18,
@@ -31,7 +40,26 @@ export async function initAudio() {
   masterCompressor.chain(masterLimiter, Tone.Destination)
   masterLimiter.connect(masterAnalyser)
 
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') resumeIfSuspended()
+  })
+
   started = true
+}
+
+async function resumeIfSuspended() {
+  const ctx = Tone.getContext()
+  if (ctx.state !== 'running') {
+    try {
+      await ctx.resume()
+    } catch (err) {
+      console.warn('AudioContext resume failed', err)
+    }
+  }
+}
+
+export function getContextState() {
+  return started ? Tone.getContext().state : 'not-started'
 }
 
 export function getMasterBus() {

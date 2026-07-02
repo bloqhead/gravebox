@@ -131,11 +131,12 @@ function startDrag(e) {
   font-size: 9px;
   color: var(--gb-bone-dim);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .knob__value {
-  font-size: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   color: var(--gb-phosphor);
 }
 </style>

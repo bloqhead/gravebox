@@ -1,9 +1,10 @@
 <template>
   <div class="app">
     <header class="app__header">
-      <h1 class="gb-display app__logo">GRAVEBOX</h1>
+      <h1 class="gb-wordmark app__logo" data-text="GRAVEBOX">GRAVEBOX</h1>
       <span class="app__subtitle">a groovebox for the crypt</span>
     </header>
+    <div class="gb-hazard-bar"></div>
 
     <TransportBar class="app__transport" />
 
@@ -44,6 +45,14 @@ async function startAudio() {
 }
 
 onMounted(() => {
+  // Safety net: some mobile browsers can swallow the overlay's own click
+  // (e.g. a stray scroll/zoom gesture eats it) — so any first tap/click
+  // anywhere in the app also tries to unlock audio, not just the overlay.
+  const unlockOnce = () => {
+    if (!transport.audioReady) transport.ensureAudio()
+  }
+  window.addEventListener('pointerdown', unlockOnce, { once: true })
+
   // Seed a starter project so the grid isn't empty on first load
   const kick = tracks.addTrack('synth', 'Kick')
   const hat = tracks.addTrack('synth', 'Hat')
@@ -73,15 +82,15 @@ onMounted(() => {
 }
 
 .app__logo {
-  font-size: 28px;
+  font-size: 32px;
   margin: 0;
-  letter-spacing: 2px;
 }
 
 .app__subtitle {
   color: var(--gb-bone-dim);
   font-size: 11px;
   text-transform: lowercase;
+  letter-spacing: 0.5px;
 }
 
 .app__body {

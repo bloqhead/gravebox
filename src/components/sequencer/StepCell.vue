@@ -25,8 +25,10 @@ defineEmits(['toggle'])
 
 <style scoped>
 .step {
-  width: 26px;
-  height: 26px;
+  flex: 1;
+  aspect-ratio: 1;
+  min-width: 20px;
+  max-width: 48px;
   background: var(--gb-iron-dim);
   border: var(--pixel) solid var(--gb-iron);
   cursor: pointer;

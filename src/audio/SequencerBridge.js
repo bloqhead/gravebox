@@ -15,9 +15,11 @@ export class SequencerBridge {
     this.projectStore = projectStore
     this.transportStore = transportStore
     this.scheduleId = null
+    this.metronomeId = null
 
     this._syncEngines()
     this._reschedule()
+    this._scheduleMetronome()
 
     // Rebuild engines when tracks are added/removed/reconfigured
     watch(
@@ -115,8 +117,19 @@ export class SequencerBridge {
     }, '16n')
   }
 
+  _scheduleMetronome() {
+    let beatCounter = 0
+    this.metronomeId = engine.scheduleRepeat((time) => {
+      if (this.transportStore.metronomeOn) {
+        engine.playMetronomeClick(time, beatCounter % 4 === 0)
+      }
+      beatCounter++
+    }, '4n')
+  }
+
   dispose() {
     if (this.scheduleId !== null) engine.clearSchedule(this.scheduleId)
+    if (this.metronomeId !== null) engine.clearSchedule(this.metronomeId)
     for (const id of registry.allIds()) registry.deleteEngine(id)
   }
 }

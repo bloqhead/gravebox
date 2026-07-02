@@ -87,6 +87,24 @@ export function getAnalyser() {
   return masterAnalyser
 }
 
+let metronomeSynth = null
+
+function getMetronomeSynth() {
+  if (!metronomeSynth) {
+    metronomeSynth = new Tone.MembraneSynth({
+      pitchDecay: 0.006,
+      octaves: 2,
+      envelope: { attack: 0.001, decay: 0.08, sustain: 0 },
+    }).connect(getMasterBus())
+  }
+  return metronomeSynth
+}
+
+/** Plays a metronome tick; accented (higher-pitched) clicks mark beat 1. */
+export function playMetronomeClick(time, accent = false) {
+  getMetronomeSynth().triggerAttackRelease(accent ? 'C5' : 'C4', '32n', time, accent ? 1 : 0.6)
+}
+
 export function setBpm(bpm) {
   Tone.Transport.bpm.rampTo(bpm, 0.05)
 }

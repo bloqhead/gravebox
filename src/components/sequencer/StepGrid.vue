@@ -96,10 +96,12 @@ function randomize() {
   align-items: center;
   gap: 10px;
   margin-bottom: 6px;
+  width: 100%;
 }
 
 .grid__row-label {
   width: 100px;
+  flex-shrink: 0;
   font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -109,5 +111,7 @@ function randomize() {
 .grid__steps {
   display: flex;
   gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 </style>

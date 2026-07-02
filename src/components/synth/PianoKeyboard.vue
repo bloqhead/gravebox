@@ -46,7 +46,8 @@ const activeNotes = reactive(new Set())
 const midiConnected = ref(false)
 
 const keys = computed(() => {
-  const whiteWidth = 34
+  const totalWhiteKeys = OCTAVE_RANGE.length * WHITE_NOTES.length
+  const whiteWidthPct = 100 / totalWhiteKeys
   let whiteIndex = 0
   const result = []
 
@@ -58,13 +59,19 @@ const keys = computed(() => {
         result.push({
           note,
           isBlack: true,
-          style: { left: `${whiteIndex * whiteWidth - 9}px`, width: '18px' },
+          style: {
+            left: `${whiteIndex * whiteWidthPct - whiteWidthPct * 0.3}%`,
+            width: `${whiteWidthPct * 0.6}%`,
+          },
         })
       } else {
         result.push({
           note,
           isBlack: false,
-          style: { left: `${whiteIndex * whiteWidth}px`, width: `${whiteWidth}px` },
+          style: {
+            left: `${whiteIndex * whiteWidthPct}%`,
+            width: `${whiteWidthPct}%`,
+          },
         })
         whiteIndex++
       }
@@ -166,7 +173,10 @@ function midiNoteToName(midiNote) {
 
 .piano__keys {
   position: relative;
-  height: 100px;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  height: clamp(80px, 11vw, 120px);
   user-select: none;
   touch-action: none;
   -webkit-touch-callout: none;
@@ -176,13 +186,14 @@ function midiNoteToName(midiNote) {
 .piano__key {
   position: absolute;
   top: 0;
+  height: 100%;
   cursor: pointer;
   transition: background 0.05s;
   touch-action: none;
 }
 
 .piano__key--white {
-  height: 100px;
+  height: 100%;
   background: var(--gb-bone);
   border: 1px solid var(--gb-iron-dim);
   z-index: 1;
@@ -193,7 +204,7 @@ function midiNoteToName(midiNote) {
 }
 
 .piano__key--black {
-  height: 60px;
+  height: 58%;
   background: var(--gb-void);
   border: 1px solid #000;
   z-index: 2;
@@ -208,7 +219,7 @@ function midiNoteToName(midiNote) {
 }
 
 .piano__key-label {
-  font-size: 7px;
+  font-size: clamp(7px, 1vw, 10px);
   color: var(--gb-void);
 }
 </style>
